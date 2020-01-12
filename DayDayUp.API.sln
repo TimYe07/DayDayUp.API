@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DayDayUp.API", "src\DayDayUp.API\DayDayUp.API.csproj", "{456F69F0-E20B-49EB-8E8B-0BAD25EBA770}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DayDayUp.BlogContext", "src\DayDayUp.BlogContext\DayDayUp.BlogContext.csproj", "{B2CBF23C-FA4F-4CE2-95E2-C110B639D01A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{456F69F0-E20B-49EB-8E8B-0BAD25EBA770}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{456F69F0-E20B-49EB-8E8B-0BAD25EBA770}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{456F69F0-E20B-49EB-8E8B-0BAD25EBA770}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{456F69F0-E20B-49EB-8E8B-0BAD25EBA770}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2CBF23C-FA4F-4CE2-95E2-C110B639D01A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2CBF23C-FA4F-4CE2-95E2-C110B639D01A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2CBF23C-FA4F-4CE2-95E2-C110B639D01A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2CBF23C-FA4F-4CE2-95E2-C110B639D01A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+EndGlobal
