@@ -39,7 +39,7 @@ namespace DayDayUp.API
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetRequiredService<BlogDbContext>();
-                context.Database.Migrate();
+                context.Database.EnsureCreated();
             }
 
             app.UseRouting();
