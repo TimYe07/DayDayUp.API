@@ -27,7 +27,12 @@ namespace DayDayUp.API
                 var allowedHosts = new string[]{};
                 Configuration.GetSection("AllowedHosts").Bind(allowedHosts);
                 options.AddPolicy("BlogPolicy",
-                    builder => { builder.WithOrigins(allowedHosts); });
+                    builder =>
+                    {
+                        builder.WithOrigins(allowedHosts)
+                            .AllowAnyMethod()
+                            .AllowAnyHeader();
+                    });
             });
             services.AddBlogModule(Configuration);
             services.AddControllers().AddJsonOptions(options =>
