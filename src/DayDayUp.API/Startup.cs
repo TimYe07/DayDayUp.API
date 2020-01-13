@@ -4,7 +4,6 @@ using DayDayUp.BlogContext;
 using DayDayUp.BlogContext.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,6 +21,11 @@ namespace DayDayUp.API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("BlogPolicy",
+                    builder => { builder.WithOrigins(Configuration.GetValue<string[]>("AllowedHosts")); });
+            });
             services.AddBlogModule(Configuration);
             services.AddControllers().AddJsonOptions(options =>
             {
@@ -42,6 +46,7 @@ namespace DayDayUp.API
                 context.Database.EnsureCreated();
             }
 
+            app.UseCors("BlogPolicy");
             app.UseRouting();
             app.UseAuthorization();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
