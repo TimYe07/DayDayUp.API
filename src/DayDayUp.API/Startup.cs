@@ -20,19 +20,19 @@ namespace DayDayUp.API
 
         public IConfiguration Configuration { get; }
 
+        private readonly string[] _allowedHosts = {
+            "https://*.codeporter.dev",
+            "https://codeporter.dev"
+        };
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors(options =>
             {
-                var allowedHosts = Configuration
-                    .GetSection("AllowedHosts")
-                    .GetChildren()
-                    .Select(x => x.Value)
-                    .ToArray();
                 options.AddPolicy("BlogPolicy",
                     builder =>
                     {
-                        builder.WithOrigins(allowedHosts)
+                        builder.WithOrigins(_allowedHosts)
                             .AllowAnyMethod()
                             .AllowAnyHeader();
                     });
