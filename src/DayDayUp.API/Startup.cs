@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using DayDayUp.BlogContext;
@@ -23,8 +24,10 @@ namespace DayDayUp.API
         {
             services.AddCors(options =>
             {
+                var allowedHosts = new string[]{};
+                Configuration.GetSection("AllowedHosts").Bind(allowedHosts);
                 options.AddPolicy("BlogPolicy",
-                    builder => { builder.WithOrigins(Configuration.GetValue<string[]>("AllowedHosts")); });
+                    builder => { builder.WithOrigins(allowedHosts); });
             });
             services.AddBlogModule(Configuration);
             services.AddControllers().AddJsonOptions(options =>
