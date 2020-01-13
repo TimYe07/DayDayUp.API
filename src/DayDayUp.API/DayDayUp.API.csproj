@@ -8,4 +8,8 @@
       <ProjectReference Include="..\DayDayUp.BlogContext\DayDayUp.BlogContext.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Data" />
+    </ItemGroup>
+
 </Project>

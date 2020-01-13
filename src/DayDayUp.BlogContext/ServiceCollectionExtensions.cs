@@ -5,6 +5,7 @@ using DayDayUp.BlogContext.Mapings;
 using DayDayUp.BlogContext.Queries;
 using DayDayUp.BlogContext.Repositories;
 using DayDayUp.BlogContext.Services;
+using DayDayUp.BlogContext.ValueObject;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,6 +18,7 @@ namespace DayDayUp.BlogContext
         public static IServiceCollection AddBlogModule(this IServiceCollection services, IConfiguration configuration)
         {
             MapsterConfig.Init();
+            services.Configure<Secrets>(configuration.GetSection("Secrets"));
             services.AddDbContextPool<Repositories.BlogDbContext>(opt =>
             {
                 opt.UseSqlite(configuration.GetConnectionString("Blog"));

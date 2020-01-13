@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DayDayUp.BlogContext.ValueObject;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using TencentCloud.Common;
 using TencentCloud.Common.Profile;
@@ -18,13 +19,18 @@ namespace DayDayUp.BlogContext.Services
     public class TextConversion : ITextConversionService
     {
         public TextConversion
-            (IHttpClientFactory clientFactory, ILogger<TextConversion> logger)
+        (
+            IHttpClientFactory clientFactory,
+            IOptions<Secrets> options,
+            ILogger<TextConversion> logger)
         {
             _client = clientFactory.CreateClient("markdown");
+            _secrets = options.Value;
             _logger = logger;
         }
 
         private readonly HttpClient _client;
+        private readonly Secrets _secrets;
         private readonly ILogger<TextConversion> _logger;
 
         public async Task<TextDocument> ToMarkdownAsync(string content)
@@ -62,8 +68,8 @@ namespace DayDayUp.BlogContext.Services
             {
                 var cred = new Credential
                 {
-                    SecretId = "AKIDnV5Yt4NrVxDHKCwyufVGqIakkY8bjKxN",
-                    SecretKey = "MuJWQLCzmU0MWTZYOWXQQHyTp35KONAl"
+                    SecretId = _secrets.Tencent.SecretId,
+                    SecretKey = _secrets.Tencent.SecretKey
                 };
 
                 var clientProfile = new ClientProfile();
@@ -108,8 +114,8 @@ namespace DayDayUp.BlogContext.Services
 
                 var cred = new Credential
                 {
-                    SecretId = "AKIDnV5Yt4NrVxDHKCwyufVGqIakkY8bjKxN",
-                    SecretKey = "MuJWQLCzmU0MWTZYOWXQQHyTp35KONAl"
+                    SecretId = _secrets.Tencent.SecretId,
+                    SecretKey = _secrets.Tencent.SecretKey
                 };
 
                 var clientProfile = new ClientProfile();
@@ -133,7 +139,5 @@ namespace DayDayUp.BlogContext.Services
                 return string.Empty;
             }
         }
-        
-        
     }
 }
