@@ -1,6 +1,6 @@
-using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using DayDayUp.AccountContext;
 using DayDayUp.BlogContext;
 using DayDayUp.BlogContext.Repositories;
 using Microsoft.AspNetCore.Builder;
@@ -17,27 +17,13 @@ namespace DayDayUp.API
         {
             Configuration = configuration;
         }
-
+        
         public IConfiguration Configuration { get; }
-
-        private readonly string[] _allowedHosts = {
-            "https://*.codeporter.dev",
-            "https://codeporter.dev"
-        };
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(options =>
-            {
-                options.AddPolicy("BlogPolicy",
-                    builder =>
-                    {
-                        builder.WithOrigins(_allowedHosts)
-                            .AllowAnyMethod()
-                            .AllowAnyHeader();
-                    });
-            });
             services.AddBlogModule(Configuration);
+            services.AddAccountModule(Configuration);
             services.AddControllers().AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
@@ -57,8 +43,8 @@ namespace DayDayUp.API
                 context.Database.EnsureCreated();
             }
 
-            app.UseCors("BlogPolicy");
             app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }

@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\DayDayUp.AccountContext\DayDayUp.AccountContext.csproj" />
       <ProjectReference Include="..\DayDayUp.BlogContext\DayDayUp.BlogContext.csproj" />
     </ItemGroup>
 
