@@ -35,9 +35,9 @@ namespace DayDayUp.BlogContext.Commands.Tags
             {
                 return OperationResult.Fail($"标签 '{request.Name}' 已存在，请勿重复添加。");
             }
-            
+
             tag.SetOrUpdateName(request.Name);
-            tag.GenerateSlugAsync(_textConversion);
+            await tag.GenerateSlugAsync(_textConversion);
 
             var slugIsExits = _tagRepo.Any(c => c.Slug == tag.Slug);
             if (slugIsExits)

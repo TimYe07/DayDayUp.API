@@ -55,7 +55,7 @@ namespace DayDayUp.BlogContext.Commands.Posts
             {
                 _postRepository.Insert(post);
                 await _postRepository.UnitOfWork.SaveChangesAsync(cancellationToken);
-                return OperationResult.Succeed();
+                return OperationResult.Succeed(post.Slug);
             }
             catch (Exception e)
             {

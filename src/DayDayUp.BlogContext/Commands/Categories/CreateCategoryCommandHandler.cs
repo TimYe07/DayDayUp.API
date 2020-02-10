@@ -37,7 +37,7 @@ namespace DayDayUp.BlogContext.Commands.Categories
             }
             
             category.SetOrUpdateName(request.Name);
-            category.GenerateSlugAsync(_textConversion);
+            await category.GenerateSlugAsync(_textConversion);
 
             var slugIsExits = _categoryRepo.Any(c => c.Slug == category.Slug);
             if (slugIsExits)

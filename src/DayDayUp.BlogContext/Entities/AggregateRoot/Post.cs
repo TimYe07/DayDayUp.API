@@ -25,11 +25,6 @@ namespace DayDayUp.BlogContext.Entities.AggregateRoot
         public string Description { get; private set; }
 
         /// <summary>
-        /// 目录
-        /// </summary>
-        public string Toc { get; private set; }
-
-        /// <summary>
         /// 原文内容
         /// </summary>
         public string Content { get; private set; }
@@ -45,7 +40,7 @@ namespace DayDayUp.BlogContext.Entities.AggregateRoot
         public ContentType ContentType { get; private set; } = ContentType.Markdown;
 
         /// <summary>
-        /// 友好地址名
+        /// 地址名
         /// </summary>
         public string Slug { get; private set; }
 
@@ -58,6 +53,11 @@ namespace DayDayUp.BlogContext.Entities.AggregateRoot
         /// 是否草稿
         /// </summary>
         public bool IsDraft { get; private set; } = true;
+        
+        /// <summary>
+        /// 是否设置为私有
+        /// </summary>
+        public bool IsPrivate { get; private set; } = false;
 
         /// <summary>
         /// 创建于
@@ -73,11 +73,6 @@ namespace DayDayUp.BlogContext.Entities.AggregateRoot
         /// 更新于
         /// </summary>
         public DateTime? UpdateOn { get; private set; }
-
-        /// <summary>
-        /// 是否设置为私有
-        /// </summary>
-        public bool IsPrivate { get; private set; } = false;
 
         /// <summary>
         /// 是否删除
@@ -160,7 +155,6 @@ namespace DayDayUp.BlogContext.Entities.AggregateRoot
             ContentType = ContentType.Markdown;
             Content = textDocument.Doc.Source;
             ConvertedContent = textDocument.Doc.Html;
-            Toc = JsonSerializer.Serialize(textDocument.Toc);
         }
     }
 }

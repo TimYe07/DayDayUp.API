@@ -28,7 +28,6 @@ namespace DayDayUp.BlogContext.Queries
                 Page = page,
                 Limit = limit,
                 Total = total,
-                TotalPage = PagingUtil.CalculateTotalPage(total, limit, null),
                 Values = await postsQuery.OrderByDescending(q=>q.Id)
                     .ProjectToType<PostDto>()
                     .Skip((page - 1) * limit)
@@ -57,7 +56,6 @@ namespace DayDayUp.BlogContext.Queries
                 Page = page,
                 Limit = limit,
                 Total = total,
-                TotalPage = PagingUtil.CalculateTotalPage(total, limit, null),
                 Values = await postsQuery.OrderByDescending(q=>q.Id)
                     .ProjectToType<PostDto>()
                     .Skip((page - 1) * limit)
@@ -87,7 +85,6 @@ namespace DayDayUp.BlogContext.Queries
                 Page = page,
                 Limit = limit,
                 Total = total,
-                TotalPage = PagingUtil.CalculateTotalPage(total, limit, null),
                 Values = await postsQuery.OrderByDescending(q=>q.Id)
                     .ProjectToType<PostDto>()
                     .Skip((page - 1) * limit)
