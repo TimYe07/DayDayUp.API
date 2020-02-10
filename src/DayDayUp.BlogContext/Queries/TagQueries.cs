@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
+using DayDayUp.BlogContext.Extensions;
 using DayDayUp.BlogContext.Models;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -15,21 +16,42 @@ namespace DayDayUp.BlogContext.Queries
 
         private readonly Repositories.BlogDbContext _dbContext;
 
-        public async Task<PagingQuery<TagQueryDto>> GetAllTagAsync()
+        public async Task<PagingQuery<TagQueryDto>> GetPagingCategoriesAsync
+            (string keywords = "", int page = 1, int size = 10)
         {
-            var queryResult = new PagingQuery<TagQueryDto>
+            page = PagingUtil.QueryPageValidator(page);
+            size = PagingUtil.QuerySizeValidator(size);
+            var skip = (page - 1) * size;
+
+            var query = _dbContext.Tags.AsQueryable();
+            if (!string.IsNullOrEmpty(keywords))
             {
-                Page = 1,
-                Limit = 10,
-                Values = _dbContext.Tags.Select(t => new TagQueryDto()
+                query = query.Where(c =>
+                    EF.Functions.Like(c.Name, $"%{keywords}%") || EF.Functions.Like(c.Slug, $"%{keywords}%"));
+            }
+
+            var total = await query.CountAsync();
+            var tags = await query
+                .Skip(skip)
+                .Take(size)
+                .Select(t => new TagQueryDto()
                 {
                     Name = t.Name,
                     Slug = t.Slug,
                     Count = _dbContext.PostTags.Count(pt => pt.TagId == t.Id)
-                }).OrderByDescending(c => c.Count)
+                })
+                .OrderByDescending(c => c.Count)
+                .ToListAsync();
+
+            var queryResult = new PagingQuery<TagQueryDto>
+            {
+                Total = total,
+                Page = page,
+                Limit = size,
+                Values = tags
             };
 
-            return await Task.FromResult(queryResult);
+            return queryResult;
         }
 
         public async Task<TagQueryDto> GetTagAsync(string slug)
@@ -37,7 +59,12 @@ namespace DayDayUp.BlogContext.Queries
             return await _dbContext.Tags
                 .AsQueryable()
                 .Where(t => t.Slug == slug)
-                .ProjectToType<TagQueryDto>()
+                .Select(t => new TagQueryDto()
+                {
+                    Name = t.Name,
+                    Slug = t.Slug,
+                    Count = _dbContext.PostTags.Count(pt => pt.TagId == t.Id)
+                })
                 .FirstOrDefaultAsync();
         }
     }

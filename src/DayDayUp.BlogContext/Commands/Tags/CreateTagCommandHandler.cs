@@ -29,25 +29,23 @@ namespace DayDayUp.BlogContext.Commands.Tags
 
         public async Task<OperationResult> Handle(CreateTagCommand request, CancellationToken cancellationToken)
         {
-            var isExits = _tagRepo.Any(c => c.Name == request.Name);
-            if (isExits)
+            var tag = new Tag();
+            var tagIsExits = _tagRepo.Any(c => c.Name == request.Name);
+            if (tagIsExits)
             {
-                return OperationResult.Fail("该标签已存在，请勿重复添加。");
+                return OperationResult.Fail($"标签 '{request.Name}' 已存在，请勿重复添加。");
+            }
+            
+            tag.SetOrUpdateName(request.Name);
+            tag.GenerateSlugAsync(_textConversion);
+
+            var slugIsExits = _tagRepo.Any(c => c.Slug == tag.Slug);
+            if (slugIsExits)
+            {
+                return OperationResult.Fail($"标签地址名 '{tag.Slug}' 已存在，请勿重复添加。");
             }
 
-            var tagSlug = await _textConversion.GenerateSlugAsync(request.Name);
-            if (string.IsNullOrEmpty(tagSlug))
-            {
-                tagSlug = request.Name;
-            }
-
-            var category = new Tag
-            {
-                Name = request.Name,
-                Slug = tagSlug
-            };
-
-            _tagRepo.Insert(category);
+            _tagRepo.Insert(tag);
 
             try
             {
@@ -57,7 +55,7 @@ namespace DayDayUp.BlogContext.Commands.Tags
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return OperationResult.Fail($"添加标签'{request.Name}'出错了，请重试。");
+                return OperationResult.Fail($"添加标签 '{request.Name}' 出错了，请重试。");
             }
         }
     }

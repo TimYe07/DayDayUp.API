@@ -1,4 +1,6 @@
 using System.Threading.Tasks;
+using DayDayUp.API.Models;
+using DayDayUp.BlogContext.Commands.Categories;
 using DayDayUp.BlogContext.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -14,14 +16,14 @@ namespace DayDayUp.API.Controllers
             _categoryQueries = categoryQueries;
             _mediator = mediator;
         }
-        
+
         private readonly ICategoryQueries _categoryQueries;
         private readonly IMediator _mediator;
 
         [HttpGet]
-        public async Task<IActionResult> GetAllCategoryAsync()
+        public async Task<IActionResult> GetCategoryAsync(string keywords = "", int page = 1, int size = 10)
         {
-            var result = await _categoryQueries.GetAllCategoryAsync();
+            var result = await _categoryQueries.GetPagingCategoriesAsync(keywords, page, size);
             return Ok(result);
         }
 
@@ -31,6 +33,47 @@ namespace DayDayUp.API.Controllers
             var result = await _categoryQueries.GetCategoryAsync(slug);
             return Ok(result);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateCategoryAsync(CategoryCreateModel model)
+        {
+            var command = new CreateCategoryCommand(model.Name);
+            var result = await _mediator.Send(command);
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateCategoryAsync(CategoryUpdateModel model)
+        {
+            var command = new UpdateCategoryCommand(model.Id, model.Name, model.Slug, model.IsGenerateSlug);
+            var result = await _mediator.Send(command);
+            
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCategoryAsync(long id)
+        {
+            var command = new DeleteCategoryCommand(id);
+            var result = await _mediator.Send(command);
+
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
     }
 }
-

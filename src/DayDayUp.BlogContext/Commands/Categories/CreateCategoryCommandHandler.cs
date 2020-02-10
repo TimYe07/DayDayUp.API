@@ -29,23 +29,21 @@ namespace DayDayUp.BlogContext.Commands.Categories
 
         public async Task<OperationResult> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
-            var isExits = _categoryRepo.Any(c => c.Name == request.Name);
-            if (isExits)
+            var category = new Category();
+            var categoryIsExits = _categoryRepo.Any(c => c.Name == request.Name);
+            if (categoryIsExits)
             {
-                return OperationResult.Fail("该分类已存在，请勿重复添加。");
+                return OperationResult.Fail($"分类 '{request.Name}' 已存在，请勿重复添加。");
             }
+            
+            category.SetOrUpdateName(request.Name);
+            category.GenerateSlugAsync(_textConversion);
 
-            var categorySlug = await _textConversion.GenerateSlugAsync(request.Name);
-            if (string.IsNullOrEmpty(categorySlug))
+            var slugIsExits = _categoryRepo.Any(c => c.Slug == category.Slug);
+            if (slugIsExits)
             {
-                categorySlug = request.Name;
+                return OperationResult.Fail($"分类地址名 '{category.Slug}' 已存在，请勿重复添加。");
             }
-
-            var category = new Category
-            {
-                Name = request.Name,
-                Slug = categorySlug
-            };
 
             _categoryRepo.Insert(category);
 
@@ -57,7 +55,7 @@ namespace DayDayUp.BlogContext.Commands.Categories
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return OperationResult.Fail($"添加分类'{request.Name}'出错了，请重试。");
+                return OperationResult.Fail($"添加分类 '{request.Name}' 出错了，请重试。");
             }
         }
     }

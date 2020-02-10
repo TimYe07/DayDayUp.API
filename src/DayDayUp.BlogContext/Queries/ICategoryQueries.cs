@@ -7,7 +7,7 @@ namespace DayDayUp.BlogContext.Queries
 {
     public interface ICategoryQueries
     {
-        Task<PagingQuery<CategoryQueryDto>> GetAllCategoryAsync();
+        Task<PagingQuery<CategoryQueryDto>> GetPagingCategoriesAsync(string keywords = "", int page = 1, int size = 10);
         Task<CategoryQueryDto> GetCategoryAsync(string slug);
     }
 }

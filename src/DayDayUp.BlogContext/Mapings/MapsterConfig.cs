@@ -19,8 +19,13 @@ namespace DayDayUp.BlogContext.Mapings
             TypeAdapterConfig<Post, PostDetailDto>
                 .NewConfig()
                 .Map(d => d.Content, s => s.ConvertedContent)
-                .Map(d => d.Tags, s => s.PostTags.Select(pt => pt.Tag))
-                .Map(d => d.Toc, s => ConvertToObject(s.Toc));
+                .Map(d => d.Tags, s => s.PostTags.Select(pt => pt.Tag));
+
+            TypeAdapterConfig<Post, SourcePostDto>
+                .NewConfig()
+                .Map(d => d.Content, s => s.Content)
+                .Map(d => d.Tags, s => s.PostTags.Select(pt => pt.Tag.Name))
+                .Map(d => d.Category, s => s.Category.Name);
 
             TypeAdapterConfig<Tag, TagQueryDto>
                 .NewConfig();
