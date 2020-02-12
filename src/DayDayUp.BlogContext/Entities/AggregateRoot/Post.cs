@@ -52,7 +52,7 @@ namespace DayDayUp.BlogContext.Entities.AggregateRoot
         /// <summary>
         /// 是否草稿
         /// </summary>
-        public bool IsDraft { get; private set; } = true;
+        public bool IsDraft { get; private set; } = false;
 
         /// <summary>
         /// 是否设置为私有
