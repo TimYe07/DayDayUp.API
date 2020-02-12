@@ -64,6 +64,11 @@ namespace DayDayUp.BlogContext.Services
 
         public async Task<string> GenerateSlugAsync(string title)
         {
+            if (Regex.IsMatch(title, @"^\w+$"))
+            {
+                return title;
+            }
+
             try
             {
                 var cred = new Credential
