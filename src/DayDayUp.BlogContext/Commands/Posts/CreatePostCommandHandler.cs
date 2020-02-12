@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DayDayUp.BlogContext.Entities.AggregateRoot;
+using DayDayUp.BlogContext.Extensions;
 using DayDayUp.BlogContext.Repositories;
 using DayDayUp.BlogContext.Services;
 using DayDayUp.BlogContext.ValueObject;
@@ -33,34 +35,42 @@ namespace DayDayUp.BlogContext.Commands.Posts
         public async Task<OperationResult> Handle(CreatePostCommand request, CancellationToken cancellationToken)
         {
             var textDocumentTask = _textConversion.ToMarkdownAsync(request.Content);
-            var slugTask = _textConversion.GenerateSlugAsync(request.Title);
             var summaryTask = _textConversion.GenerateSummaryAsync(request.Content);
-            var categoryTask = _postDomainService.GetOrCreateCategoryAsync(request.Category);
-            var tagTask = _postDomainService.GetOrCreateTagAsync(request.Tags);
 
             var post = new Post();
+            if (string.IsNullOrEmpty(request.Slug))
+            {
+                post.SetOrUpdateSlug(post.Id.EncodeLongId(request.Title));
+            }
+            else
+            {
+                post.SetOrUpdateSlug(request.Slug);
+            }
+
+            var category = await _postDomainService.GetOrCreateCategoryAsync(request.Category ?? "其他");
+            post.SetOrUpdateCategory(category);
+            if (request.Tags.Any())
+            {
+                var tags = await _postDomainService.GetOrCreateTagAsync(request.Tags);
+                post.SetOrUpdateTags(tags);
+            }
+
             post.SetOrUpdateTitle(request.Title);
-            post.SetOrUpdatePrivate(request.IsPrivate);
-            post.SetOrUpdateCategory(await categoryTask);
-            post.SetOrUpdateTags(await tagTask);
-            post.SetOrUpdateSlug(await slugTask);
             post.SetOrUpdateDesc(await summaryTask);
             post.SetOrUpdateContent(await textDocumentTask);
-
-            if (request.IsDraft)
-                post.SaveAsDraft();
-            post.Publish();
+            post.SetOrUpdateCreateOn(request.CreateOn);
+            post.SetOrUpdateUpdateOn(request.UpdateOn);
 
             try
             {
                 _postRepository.Insert(post);
                 await _postRepository.UnitOfWork.SaveChangesAsync(cancellationToken);
-                return OperationResult.Succeed(post.Slug);
+                return OperationResult.Succeed(post.Id.ToString());
             }
             catch (Exception e)
             {
                 _logger.LogError(e.Message);
-                return OperationResult.Fail("添加文章出错了，请重试。");
+                return OperationResult.Fail("添加文章出错了，请重试");
             }
         }
     }

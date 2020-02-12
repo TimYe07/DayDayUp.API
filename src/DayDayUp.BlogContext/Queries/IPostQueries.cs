@@ -26,5 +26,6 @@ namespace DayDayUp.BlogContext.Queries
             string timestamp);
 
         Task<PostDetailDto> GetPostDetailBySlugAsync(string slug);
+        Task<PublishedPostDto> GetPublishedPostAsync(string slug);
     }
 }

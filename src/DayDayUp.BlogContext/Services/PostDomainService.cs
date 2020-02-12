@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DayDayUp.BlogContext.Entities.AggregateRoot;
 using DayDayUp.BlogContext.Repositories;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace DayDayUp.BlogContext.Services
 {
@@ -46,6 +47,11 @@ namespace DayDayUp.BlogContext.Services
         public async Task<IEnumerable<Tag>> GetOrCreateTagAsync(string[] tags)
         {
             var tagResult = new List<Tag>();
+            if (tags == null)
+            {
+                return tagResult;
+            }
+
             foreach (var item in tags)
             {
                 var tag = _tagRepo.Find(x => x.Name == item);

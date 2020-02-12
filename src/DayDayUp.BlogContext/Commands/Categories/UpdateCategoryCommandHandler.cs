@@ -35,7 +35,11 @@ namespace DayDayUp.BlogContext.Commands.Categories
             }
 
             category.SetOrUpdateName(request.Name);
-            category.SetOrUpdateSlug(request.Slug);
+
+            if (category.Slug != request.Slug && !_categoryRepo.Any(c => c.Slug == request.Slug))
+            {
+                category.SetOrUpdateSlug(request.Slug);
+            }
 
             if (request.IsGenerateSlug)
             {

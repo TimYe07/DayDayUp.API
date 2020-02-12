@@ -2,8 +2,10 @@ using System.Threading.Tasks;
 using DayDayUp.API.Models;
 using DayDayUp.BlogContext.Commands.Categories;
 using DayDayUp.BlogContext.Queries;
+using DayDayUp.BlogContext.ValueObject;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace DayDayUp.API.Controllers
 {
@@ -11,14 +13,16 @@ namespace DayDayUp.API.Controllers
     [Route("api/[controller]")]
     public class CategoriesController : ControllerBase
     {
-        public CategoriesController(ICategoryQueries categoryQueries, IMediator mediator)
+        public CategoriesController(ICategoryQueries categoryQueries, IMediator mediator, IOptions<Secrets> options)
         {
             _categoryQueries = categoryQueries;
             _mediator = mediator;
+            _secrets = options.Value;
         }
 
         private readonly ICategoryQueries _categoryQueries;
         private readonly IMediator _mediator;
+        private readonly Secrets _secrets;
 
         [HttpGet]
         public async Task<IActionResult> GetCategoryAsync(string keywords = "", int page = 1, int size = 10)
@@ -39,7 +43,7 @@ namespace DayDayUp.API.Controllers
         {
             var command = new CreateCategoryCommand(model.Name);
             var result = await _mediator.Send(command);
-            
+
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -53,7 +57,7 @@ namespace DayDayUp.API.Controllers
         {
             var command = new UpdateCategoryCommand(model.Id, model.Name, model.Slug, model.IsGenerateSlug);
             var result = await _mediator.Send(command);
-            
+
             if (!result.Success)
             {
                 return BadRequest(result);

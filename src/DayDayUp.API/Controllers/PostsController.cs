@@ -23,24 +23,31 @@ namespace DayDayUp.API.Controllers
         private readonly IPostQueries _postQueries;
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync(CreatePostModel model)
+        public async Task<IActionResult> CreateAsync(PostModel model)
         {
-            var command = new CreatePostCommand(model.Title, model.Category, model.Tags, model.Content,
-                model.IsDraft, model.IsPrivate);
+            var command = new CreatePostCommand(
+                model.Title, 
+                model.Slug, 
+                model.Category, 
+                model.Tags, 
+                model.Content,
+                model.CreateOn, 
+                model.UpdateOn);
             var result = await _mediator.Send(command);
-            if (result.Success)
-                return Ok(result);
-            return BadRequest(result);
+            if (!result.Success)
+                return BadRequest(result);
+            return Ok(result.Message);
         }
 
-        [HttpPatch("{id}")]
-        public async Task<IActionResult> UpdateAsync(string id, Dictionary<string, object> updatePostDictionary)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateAsync(long id, PostModel model)
         {
-            var command = new UpdatePostCommand(id, updatePostDictionary);
+            var command = new UpdatePostCommand(id, model.Title, model.Slug, model.Category, model.Tags, model.Content,
+                model.CreateOn, model.UpdateOn);
             var result = await _mediator.Send(command);
-            if (result)
-                return Ok(result);
-            return BadRequest(result);
+            if (!result.Success)
+                return BadRequest(result);
+            return Ok(result.Message);
         }
 
         [HttpGet("{slug}")]

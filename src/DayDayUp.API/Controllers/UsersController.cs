@@ -1,5 +1,6 @@
 using DayDayUp.AccountContext;
 using DayDayUp.API.Models;
+using DayDayUp.BlogContext.ValueObject;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,7 +23,7 @@ namespace DayDayUp.API.Controllers
             var user = _userService.Authenticate(model.Email, model.Password);
 
             if (user == null)
-                return BadRequest(new {message = "Username or password is incorrect"});
+                return BadRequest(OperationResult.Fail("email or password is incorrect"));
 
             return Ok(user);
         }

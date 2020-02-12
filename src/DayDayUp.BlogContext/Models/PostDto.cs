@@ -10,8 +10,7 @@ namespace DayDayUp.BlogContext.Models
         public string Description { get; set; }
         public string Slug { get; set; }
         public int ViewCount { get; set; }
-        public DateTimeOffset CreateOn { get; set; }
-        public DateTimeOffset? PublishOn { get; set; }
-        public DateTimeOffset? UpdateOn { get; set; }
+        public DateTime CreateOn { get; set; }
+        public DateTime? UpdateOn { get; set; }
     }
 }

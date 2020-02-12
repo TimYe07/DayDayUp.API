@@ -28,7 +28,7 @@ namespace DayDayUp.BlogContext.Queries
                 Page = page,
                 Limit = limit,
                 Total = total,
-                Values = await postsQuery.OrderByDescending(q=>q.Id)
+                Values = await postsQuery.OrderByDescending(q => q.Id)
                     .ProjectToType<PostDto>()
                     .Skip((page - 1) * limit)
                     .Take(limit)
@@ -56,7 +56,7 @@ namespace DayDayUp.BlogContext.Queries
                 Page = page,
                 Limit = limit,
                 Total = total,
-                Values = await postsQuery.OrderByDescending(q=>q.Id)
+                Values = await postsQuery.OrderByDescending(q => q.Id)
                     .ProjectToType<PostDto>()
                     .Skip((page - 1) * limit)
                     .Take(limit)
@@ -85,7 +85,7 @@ namespace DayDayUp.BlogContext.Queries
                 Page = page,
                 Limit = limit,
                 Total = total,
-                Values = await postsQuery.OrderByDescending(q=>q.Id)
+                Values = await postsQuery.OrderByDescending(q => q.Id)
                     .ProjectToType<PostDto>()
                     .Skip((page - 1) * limit)
                     .Take(limit)
@@ -102,6 +102,18 @@ namespace DayDayUp.BlogContext.Queries
                 .ThenInclude(pt => pt.Tag)
                 .Where(p => p.Slug == slug && !p.IsDraft && !p.IsPrivate && !p.IsDeleted)
                 .ProjectToType<PostDetailDto>()
+                .FirstOrDefaultAsync();
+
+            return queryResult;
+        }
+
+        public async Task<PublishedPostDto> GetPublishedPostAsync(string slug)
+        {
+            var queryResult = await _dbContext.Posts.Include(p => p.Category)
+                .Include(p => p.PostTags)
+                .ThenInclude(pt => pt.Tag)
+                .Where(p => p.Slug == slug && !p.IsDraft && !p.IsPrivate && !p.IsDeleted)
+                .ProjectToType<PublishedPostDto>()
                 .FirstOrDefaultAsync();
 
             return queryResult;

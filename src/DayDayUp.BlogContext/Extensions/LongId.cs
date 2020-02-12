@@ -1,3 +1,5 @@
+using System;
+using HashidsNet;
 using Snowflake.Core;
 
 namespace DayDayUp.BlogContext.Extensions
@@ -14,6 +16,28 @@ namespace DayDayUp.BlogContext.Extensions
         {
             var id = _IdWorker.NextId();
             return id;
+        }
+
+        public static string EncodeLongId(this long id, string salt)
+        {
+            if (string.IsNullOrEmpty(salt))
+            {
+                throw new ArgumentNullException(nameof(salt));
+            }
+
+            var hashids = new Hashids(salt);
+            return hashids.EncodeLong(id);
+        }
+
+        public static long DecodeLongId(this string encodeLongId, string salt)
+        {
+            if (string.IsNullOrEmpty(salt))
+            {
+                throw new ArgumentNullException(nameof(salt));
+            }
+
+            var hashids = new Hashids(salt);
+            return hashids.DecodeLong(encodeLongId)[0];
         }
     }
 }

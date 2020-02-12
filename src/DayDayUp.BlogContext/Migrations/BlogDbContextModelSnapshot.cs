@@ -14,7 +14,7 @@ namespace DayDayUp.BlogContext.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.0");
+                .HasAnnotation("ProductVersion", "3.1.1");
 
             modelBuilder.Entity("DayDayUp.BlogContext.Entities.AggregateRoot.Category", b =>
                 {
@@ -64,16 +64,10 @@ namespace DayDayUp.BlogContext.Migrations
                     b.Property<bool>("IsPrivate")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("PublishOn")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Slug")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Toc")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdateOn")

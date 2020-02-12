@@ -9,12 +9,10 @@ namespace DayDayUp.BlogContext.Models
         public PostInCategoryDto Category { get; set; }
         public PostInTagDto[] Tags { get; set; }
         public string Description { get; set; }
-        public TocItem[] Toc { get; set; }
         public string Content { get; set; }
         public string Slug { get; set; }
         public int ViewCount { get; set; }
-        public DateTimeOffset CreateOn { get; set; }
-        public DateTimeOffset? PublishOn { get; set; }
-        public DateTimeOffset? UpdateOn { get; set; }
+        public DateTime CreateOn { get; set; }
+        public DateTime? UpdateOn { get; set; }
     }
 }
