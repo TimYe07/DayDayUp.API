@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DayDayUp.BlogContext.Migrations
 {
     [DbContext(typeof(BlogDbContext))]
-    [Migration("20200212134935_init")]
+    [Migration("20200214183134_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -65,6 +65,9 @@ namespace DayDayUp.BlogContext.Migrations
 
                     b.Property<bool>("IsPrivate")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Keywords")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Slug")
                         .HasColumnType("TEXT");

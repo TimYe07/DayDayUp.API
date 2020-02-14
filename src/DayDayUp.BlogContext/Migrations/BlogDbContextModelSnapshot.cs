@@ -64,6 +64,9 @@ namespace DayDayUp.BlogContext.Migrations
                     b.Property<bool>("IsPrivate")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Keywords")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Slug")
                         .HasColumnType("TEXT");
 

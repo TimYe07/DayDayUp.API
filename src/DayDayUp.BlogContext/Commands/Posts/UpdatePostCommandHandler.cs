@@ -36,17 +36,34 @@ namespace DayDayUp.BlogContext.Commands
 
         public async Task<OperationResult> Handle(UpdatePostCommand request, CancellationToken cancellationToken)
         {
+
             var post = await _postRepository.FindAsync(p => p.Id == request.Id && !p.IsDeleted);
             if (post == null)
             {
                 return OperationResult.Fail("该文章不存在或已删除，请刷新后重试。");
             }
-
+            
             var textDocumentTask = _textConversion.ToMarkdownAsync(request.Content);
-            var summaryTask = _textConversion.GenerateSummaryAsync(request.Content);
+
             post.SetOrUpdateTitle(request.Title);
-            var category = await _postDomainService.GetOrCreateCategoryAsync(request.Category ?? "其他");
-            post.SetOrUpdateCategory(category);
+            post.SetOrUpdateContent(await textDocumentTask);
+
+            if (request.CreateOn != null)
+            {
+                post.SetOrUpdateCreateOn(request.CreateOn);
+            }
+
+            var updateOn = request.UpdateOn ?? DateTime.Now;
+            post.SetOrUpdateUpdateOn(updateOn);
+
+            if (request.Category != post.Category.Name)
+            {
+                var category = await _postDomainService.GetOrCreateCategoryAsync(request.Category);
+                post.SetOrUpdateCategory(category);
+            }
+            
+            
+            
             var tags = await _postDomainService.GetOrCreateTagAsync(request.Tags);
             post.SetOrUpdateTags(tags);
 
@@ -55,10 +72,11 @@ namespace DayDayUp.BlogContext.Commands
                 post.SetOrUpdateSlug(request.Slug);
             }
 
-            post.SetOrUpdateDesc(await summaryTask);
-            post.SetOrUpdateContent(await textDocumentTask);
-            post.SetOrUpdateCreateOn(request.CreateOn);
-            post.SetOrUpdateUpdateOn(request.UpdateOn);
+            var desc = Utils.GetPostExcerpt(post.ConvertedContent, 200);
+            post.SetOrUpdateDesc(desc);
+            
+            var keywords = _textConversion.ExtractKeywords(Utils.RemoveTags(post.ConvertedContent), 5);
+            post.SetOrUpdateKeywords(keywords);
 
             try
             {

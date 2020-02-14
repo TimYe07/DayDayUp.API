@@ -22,7 +22,7 @@ namespace DayDayUp.API.Controllers
         private readonly IMediator _mediator;
 
         [HttpGet]
-        public async Task<IActionResult> GetTagAsync(string keywords = "", int page = 1, int size = 10)
+        public async Task<IActionResult> GetTagAsync(string keywords = "", int page = 1, int size = 15)
         {
             var result = await _tagQueries.GetPagingCategoriesAsync(keywords, page, size);
             return Ok(result);

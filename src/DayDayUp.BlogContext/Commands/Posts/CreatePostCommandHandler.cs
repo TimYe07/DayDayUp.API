@@ -35,32 +35,34 @@ namespace DayDayUp.BlogContext.Commands.Posts
         public async Task<OperationResult> Handle(CreatePostCommand request, CancellationToken cancellationToken)
         {
             var textDocumentTask = _textConversion.ToMarkdownAsync(request.Content);
-            var summaryTask = _textConversion.GenerateSummaryAsync(request.Content);
 
             var post = new Post();
-            if (string.IsNullOrEmpty(request.Slug))
-            {
-                post.SetOrUpdateSlug(post.Id.EncodeLongId(request.Title));
-            }
-            else
-            {
-                post.SetOrUpdateSlug(request.Slug);
-            }
+            
+            post.SetOrUpdateTitle(request.Title);
+            post.SetOrUpdateCreateOn(request.CreateOn);
+            post.SetOrUpdateUpdateOn(request.UpdateOn);
 
-            var category = await _postDomainService.GetOrCreateCategoryAsync(request.Category ?? "其他");
+            var slug = string.IsNullOrEmpty(request.Slug) ? post.Id.EncodeLongId(request.Title) : request.Slug;
+            post.SetOrUpdateSlug(slug);
+
+            var categoryName = request.Category ?? "其他";
+            var category = await _postDomainService.GetOrCreateCategoryAsync(categoryName);
             post.SetOrUpdateCategory(category);
+            
             if (request.Tags.Any())
             {
                 var tags = await _postDomainService.GetOrCreateTagAsync(request.Tags);
                 post.SetOrUpdateTags(tags);
             }
 
-            post.SetOrUpdateTitle(request.Title);
-            post.SetOrUpdateDesc(await summaryTask);
             post.SetOrUpdateContent(await textDocumentTask);
-            post.SetOrUpdateCreateOn(request.CreateOn);
-            post.SetOrUpdateUpdateOn(request.UpdateOn);
-
+            
+            var desc = Utils.GetPostExcerpt(post.ConvertedContent, 200);
+            post.SetOrUpdateDesc(desc);
+            
+            var keywords = _textConversion.ExtractKeywords(Utils.RemoveTags(post.ConvertedContent), 5);
+            post.SetOrUpdateKeywords(keywords);
+            
             try
             {
                 _postRepository.Insert(post);

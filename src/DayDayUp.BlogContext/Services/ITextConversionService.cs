@@ -8,7 +8,6 @@ namespace DayDayUp.BlogContext.Services
         Task<TextDocument> ToMarkdownAsync(string content);
 
         Task<string> GenerateSlugAsync(string title);
-
-        Task<string> GenerateSummaryAsync(string content);
+        string ExtractKeywords(string text, int worldCount);
     }
 }

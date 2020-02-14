@@ -40,6 +40,7 @@ namespace DayDayUp.BlogContext.Migrations
                     Id = table.Column<long>(nullable: false),
                     Title = table.Column<string>(nullable: true),
                     CategoryId = table.Column<long>(nullable: false),
+                    Keywords = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),
                     Content = table.Column<string>(nullable: true),
                     ConvertedContent = table.Column<string>(nullable: true),

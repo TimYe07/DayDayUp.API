@@ -23,7 +23,7 @@ namespace DayDayUp.BlogContext
             {
                 opt.UseSqlite(configuration.GetConnectionString("Blog"));
             });
-            services.AddScoped<ITextConversionService, TextConversion>();
+            services.AddSingleton<ITextConversionService, TextConversion>();
             services.AddHttpClient("markdown", x => x.BaseAddress = new Uri("http://markdown_api:3000"));
             
             // Repositories

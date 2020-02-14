@@ -25,7 +25,7 @@ namespace DayDayUp.API.Controllers
         private readonly Secrets _secrets;
 
         [HttpGet]
-        public async Task<IActionResult> GetCategoryAsync(string keywords = "", int page = 1, int size = 10)
+        public async Task<IActionResult> GetCategoryAsync(string keywords = "", int page = 1, int size = 15)
         {
             var result = await _categoryQueries.GetPagingCategoriesAsync(keywords, page, size);
             return Ok(result);

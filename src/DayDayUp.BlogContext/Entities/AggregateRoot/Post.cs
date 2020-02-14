@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using DayDayUp.BlogContext.Extensions;
 using DayDayUp.BlogContext.SeedWork;
 using DayDayUp.BlogContext.ValueObject;
 
@@ -18,6 +19,11 @@ namespace DayDayUp.BlogContext.Entities.AggregateRoot
         /// 分类
         /// </summary>
         public long CategoryId { get; set; }
+
+        /// <summary>
+        /// 关键词
+        /// </summary>
+        public string Keywords { get; set; }
 
         /// <summary>
         /// 摘要
@@ -82,11 +88,6 @@ namespace DayDayUp.BlogContext.Entities.AggregateRoot
             Slug = !string.IsNullOrEmpty(slug) ? slug : Id.ToString();
         }
 
-        public void SetOrUpdateDesc(string desc)
-        {
-            Description = desc;
-        }
-
         public void SetOrUpdateTitle(string title)
         {
             if (!string.IsNullOrEmpty(title))
@@ -103,12 +104,31 @@ namespace DayDayUp.BlogContext.Entities.AggregateRoot
 
         public void SetOrUpdateTags(IEnumerable<Tag> tags)
         {
-            if (!tags.Any())
+            if (!tags.Any() && !PostTags.Any())
             {
-                PostTags = null;
                 return;
             }
 
+            if (tags.Any() && !PostTags.Any())
+            {
+                foreach (var tag in tags)
+                {
+                    PostTags.Add(new PostTag
+                    {
+                        PostId = Id,
+                        TagId = tag.Id
+                    });
+                }
+
+                return;
+            }
+
+            if (!tags.Any() && PostTags.Any())
+            {
+                PostTags = null;
+            }
+
+            var sourceTagIds = PostTags.Select(pt => pt.TagId);
             foreach (var tag in tags)
             {
                 if (PostTags.All(t => t.TagId != tag.Id))
@@ -121,16 +141,21 @@ namespace DayDayUp.BlogContext.Entities.AggregateRoot
                 }
             }
 
-
-            var origalTagIds = PostTags.Select(pt => pt.TagId);
-            if (origalTagIds.Any())
+            var removeTags = new  List<PostTag>();
+            foreach (var postTag in PostTags)
             {
-                foreach (var origalTagId in origalTagIds)
+                if (tags.All(t => t.Id != postTag.TagId))
                 {
-                    if (!tags.All(t => t.Id != origalTagId)) continue;
-                    var pt = PostTags.Find(x => x.TagId == origalTagId);
-                    PostTags.Remove(pt);
+                    removeTags.Add(postTag);
                 }
+            }
+
+            if (removeTags.Any())
+            {
+                removeTags.ForEach(pt =>
+                {
+                    PostTags.Remove(pt);
+                });
             }
         }
 
@@ -139,6 +164,16 @@ namespace DayDayUp.BlogContext.Entities.AggregateRoot
             ContentType = ContentType.Markdown;
             Content = textDocument.Doc.Source;
             ConvertedContent = textDocument.Doc.Html;
+        }
+
+        public void SetOrUpdateDesc(string desc)
+        {
+            Description = desc;
+        }
+
+        public void SetOrUpdateKeywords(string keywords)
+        {
+            Keywords = keywords;
         }
 
         public void SetOrUpdateCreateOn(DateTime? createOn)

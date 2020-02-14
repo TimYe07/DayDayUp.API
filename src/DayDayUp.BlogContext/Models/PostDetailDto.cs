@@ -6,6 +6,7 @@ namespace DayDayUp.BlogContext.Models
     public class PostDetailDto
     {
         public string Title { get; set; }
+        public string Keywords { get; set; }
         public PostInCategoryDto Category { get; set; }
         public PostInTagDto[] Tags { get; set; }
         public string Description { get; set; }

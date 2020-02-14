@@ -1,9 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DayDayUp.BlogContext.ValueObject;
+using JiebaNet.Segmenter;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -13,6 +17,7 @@ using TencentCloud.Nlp.V20190408;
 using TencentCloud.Nlp.V20190408.Models;
 using TencentCloud.Tmt.V20180321;
 using TencentCloud.Tmt.V20180321.Models;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace DayDayUp.BlogContext.Services
 {
@@ -26,11 +31,13 @@ namespace DayDayUp.BlogContext.Services
         {
             _client = clientFactory.CreateClient("markdown");
             _secrets = options.Value;
+            _keywordProcessor = Init();
             _logger = logger;
         }
 
         private readonly HttpClient _client;
         private readonly Secrets _secrets;
+        private readonly KeywordProcessor _keywordProcessor;
         private readonly ILogger<TextConversion> _logger;
 
         public async Task<TextDocument> ToMarkdownAsync(string content)
@@ -41,7 +48,7 @@ namespace DayDayUp.BlogContext.Services
                 type = "md",
                 extraDocData = true
             };
-            var httpContent = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+            var httpContent = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
             var response = await _client.PostAsync("/api/text/render", httpContent);
             if (!response.IsSuccessStatusCode)
             {
@@ -94,7 +101,6 @@ namespace DayDayUp.BlogContext.Services
                 var resp = await client.TextTranslate(req);
 
                 var targetText = Regex.Replace(resp.TargetText.ToLower(), @"([\p{P}*])", "");
-
                 return targetText.Replace(" ", "-");
             }
             catch (TencentCloudSDKException e)
@@ -104,45 +110,41 @@ namespace DayDayUp.BlogContext.Services
             }
         }
 
-        public async Task<string> GenerateSummaryAsync(string content)
+        public string ExtractKeywords(string text, int worldCount)
         {
-            try
-            {
-                content = MarkdownUtility.RemoveMarkdownTags(content);
-                if (content.Length <= 0)
-                {
-                    return string.Empty;
-                }
-
-                var splitLength = content.Length >= 2000 ? 2000 : content.Length;
-                content = content.AsSpan().Slice(0, splitLength).ToString();
-
-                var cred = new Credential
-                {
-                    SecretId = _secrets.Tencent.SecretId,
-                    SecretKey = _secrets.Tencent.SecretKey
-                };
-
-                var clientProfile = new ClientProfile();
-                var httpProfile = new HttpProfile();
-                httpProfile.Endpoint = ("nlp.tencentcloudapi.com");
-                clientProfile.HttpProfile = httpProfile;
-
-                var client = new NlpClient(cred, "ap-guangzhou", clientProfile);
-                AutoSummarizationRequest req = new AutoSummarizationRequest();
-                var strParams = JsonConvert.SerializeObject(new
-                {
-                    Text = content
-                });
-                req = AutoSummarizationRequest.FromJsonString<AutoSummarizationRequest>(strParams);
-                var resp = await client.AutoSummarization(req);
-                return resp.Summary;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return string.Empty;
-            }
+            var keywords = _keywordProcessor.ExtractKeywords(text);
+            return !keywords.Any()
+                ? string.Empty
+                : string.Join(",", keywords.Count() > worldCount ? keywords.Take(worldCount) : keywords);
         }
+
+        private KeywordProcessor Init()
+        {
+            var kp = new KeywordProcessor();
+            var tagList = new List<TagOptions>();
+            using (var sr =
+                File.OpenText($"{Path.GetDirectoryName(typeof(TextConversion).Assembly.Location)}/Data/tags.json"))
+            {
+                var json = sr.ReadToEnd();
+                tagList = JsonSerializer.Deserialize<List<TagOptions>>(json);
+            }
+
+            var worldList = new List<string>();
+            foreach (var tag in tagList)
+            {
+                worldList.Add(tag.Name);
+                if (tag.Alias.Any()) worldList.AddRange(tag.Alias);
+            }
+
+            kp.AddKeywords(worldList);
+
+            return kp;
+        }
+    }
+
+    public class TagOptions
+    {
+        public string Name { get; set; }
+        public string[] Alias { get; set; }
     }
 }
